@@ -9,6 +9,7 @@ set(
     images/arrow-drop-down.svg
     images/arrow-drop-up.svg
     images/arrow-up.svg
+    images/check.svg
     images/clear.svg
     images/close.svg
     images/delete.svg

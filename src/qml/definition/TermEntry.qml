@@ -8,6 +8,9 @@ Item {
 
     required property Term term
 
+    /* true when the term is already saved to ISSEN */
+    property bool issenSaved: false
+
     signal searchRequested(query: string)
     signal kanjiClicked(expression: string, index: int)
 
@@ -53,6 +56,16 @@ Item {
 
             root.term.ankiChecked = true;
         });
+    }
+
+    /**
+     * Update whether the term is already saved to ISSEN.
+     */
+    function updateIssenSaved()
+    {
+        root.issenSaved = IssenConfig.enabled &&
+            root.term !== null &&
+            IssenClient.isTermSaved(root.term);
     }
 
     /**
@@ -167,6 +180,20 @@ Item {
     }
 
     Connections {
+        target: IssenClient
+        function onSavedWordsChanged() {
+            root.updateIssenSaved();
+        }
+    }
+
+    Connections {
+        target: IssenConfig
+        function onEnabledChanged() {
+            root.updateIssenSaved();
+        }
+    }
+
+    Connections {
         target: AnkiConfig
         function onProfileChanged() {
             if (root.term)
@@ -177,7 +204,12 @@ Item {
         }
     }
 
-    onTermChanged: root.checkTermAddable()
+    onTermChanged: {
+        root.checkTermAddable();
+        root.updateIssenSaved();
+    }
+
+    Component.onCompleted: root.updateIssenSaved()
 
     Dialog {
         id: errorDialog
@@ -316,10 +348,11 @@ Item {
                                   (root.term.addableExpression || root.term.addableReading))
                         enabled: root.term &&
                                  !root.term.ankiAdding &&
+                                 !root.issenSaved &&
                                  (IssenConfig.enabled ||
                                   audioFiles.loadState === AudioFiles.LoadState.Loaded)
-                        icon.name: MementoSettings.interfaceSystemIcons ? "list-add" : null
-                        icon.source: Utils.toImageProvider("add", MementoPalette.text)
+                        icon.name: MementoSettings.interfaceSystemIcons && !root.issenSaved ? "list-add" : null
+                        icon.source: Utils.toImageProvider(root.issenSaved ? "check" : "add", MementoPalette.text)
 
                         onClicked: {
                             if (IssenConfig.enabled)

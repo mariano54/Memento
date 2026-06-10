@@ -26,6 +26,7 @@
 
 #include <QNetworkAccessManager>
 #include <QRegularExpression>
+#include <QSet>
 
 #ifdef MEMENTO_SYSTEM_QCORO
 #include <QCoroQmlTask>
@@ -102,6 +103,29 @@ public:
     [[nodiscard]]
     QCoro::Task<QVariantMap> addWordAsync(QString word, QString sentence);
 
+    /**
+     * @brief Get if a term has already been saved to ISSEN.
+     *
+     * @param term The term to check.
+     * @return true if the term's expression or reading is a saved word,
+     * @return false otherwise.
+     */
+    [[nodiscard]]
+    Q_INVOKABLE bool isTermSaved(const Term *term) const;
+
+public slots:
+    /**
+     * @brief Refetch the set of saved words from the ISSEN server.
+     * Does nothing when ISSEN integration is disabled.
+     */
+    void refreshSavedWords();
+
+signals:
+    /**
+     * @brief Emitted when the set of saved words changes.
+     */
+    void savedWordsChanged();
+
 private slots:
     /**
      * @brief Update the saved subtitle filter regex.
@@ -111,6 +135,11 @@ private slots:
     void updateSubtitleFilterRegex(const QString &filter);
 
 private:
+    /**
+     * @brief Refetch the set of saved words from the ISSEN server.
+     */
+    QCoro::Task<> refreshSavedWordsAsync();
+
     /**
      * @brief Check if the client has a valid ISSEN session.
      *
@@ -156,4 +185,7 @@ private:
 
     /* The regular expression to filter subtitles with */
     QRegularExpression m_subtitleFilterRegex;
+
+    /* The words already saved to ISSEN */
+    QSet<QString> m_savedWords;
 };

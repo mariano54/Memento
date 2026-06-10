@@ -61,6 +61,21 @@ IssenClient::IssenClient(Context *context, QObject *parent) :
         m_context->settings(), &Settings::searchRemoveRegexChanged,
         this, &IssenClient::updateSubtitleFilterRegex
     );
+
+    IssenConfig *config = context->issenConfig();
+    connect(
+        config, &IssenConfig::enabledChanged,
+        this, &IssenClient::refreshSavedWords
+    );
+    connect(
+        config, &IssenConfig::languageChanged,
+        this, &IssenClient::refreshSavedWords
+    );
+    connect(
+        config, &IssenConfig::usernameChanged,
+        this, &IssenClient::refreshSavedWords
+    );
+    refreshSavedWords();
 }
 
 /* End Constructor/Destructors */
@@ -69,6 +84,11 @@ IssenClient::IssenClient(Context *context, QObject *parent) :
 void IssenClient::updateSubtitleFilterRegex(const QString &filter)
 {
     m_subtitleFilterRegex = QRegularExpression(filter);
+}
+
+void IssenClient::refreshSavedWords()
+{
+    refreshSavedWordsAsync();
 }
 
 /* End Slots */
@@ -168,8 +188,71 @@ QCoro::Task<QVariantMap> IssenClient::addWordAsync(
         co_return result;
     }
 
+    m_savedWords.insert(word.trimmed());
+    emit savedWordsChanged();
+
     result[Key::SUCCESS] = true;
     co_return result;
+}
+
+bool IssenClient::isTermSaved(const Term *term) const
+{
+    if (term == nullptr)
+    {
+        return false;
+    }
+    return m_savedWords.contains(term->expression().trimmed()) ||
+        m_savedWords.contains(term->reading().trimmed());
+}
+
+QCoro::Task<> IssenClient::refreshSavedWordsAsync()
+{
+    const IssenConfig *config = m_context->issenConfig();
+    if (!config->enabled())
+    {
+        if (!m_savedWords.isEmpty())
+        {
+            m_savedWords.clear();
+            emit savedWordsChanged();
+        }
+        co_return;
+    }
+
+    if (!co_await isConnected())
+    {
+        QVariantMap loginResult = co_await loginAsync();
+        if (!loginResult[Key::SUCCESS].toBool())
+        {
+            co_return;
+        }
+    }
+
+    QJsonObject body;
+    body["language"] = config->language().trimmed().toLower();
+    body["getDefinitions"] = false;
+    std::unique_ptr<QNetworkReply> reply =
+        co_await makeRequest("/get_words", std::move(body));
+    if (reply->error() != QNetworkReply::NoError)
+    {
+        co_return;
+    }
+
+    QJsonObject replyObj = QJsonDocument::fromJson(reply->readAll()).object();
+    QSet<QString> savedWords;
+    for (const QJsonValue &wordValue : replyObj["words"].toArray())
+    {
+        QString word = wordValue.toObject()["word"].toString().trimmed();
+        if (!word.isEmpty())
+        {
+            savedWords.insert(std::move(word));
+        }
+    }
+
+    if (savedWords != m_savedWords)
+    {
+        m_savedWords = std::move(savedWords);
+        emit savedWordsChanged();
+    }
 }
 
 /* End Commands */
