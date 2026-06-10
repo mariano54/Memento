@@ -70,6 +70,14 @@ QString getDictionaryDb();
 QString getAnkiConfig();
 
 /**
+ * @brief Get the path to the ISSEN config file.
+ *
+ * @return Path to the ISSEN config file.
+ */
+[[nodiscard]]
+QString getIssenConfig();
+
+/**
  * @brief Get the path to the mpv input.conf.
  *
  * @return Path to mpv's input.conf.

@@ -45,6 +45,16 @@ AnkiClient *Context::ankiClient() const noexcept
     return m_ankiClient;
 }
 
+IssenConfig *Context::issenConfig() const noexcept
+{
+    return m_issenConfig;
+}
+
+IssenClient *Context::issenClient() const noexcept
+{
+    return m_issenClient;
+}
+
 AudioPlayer *Context::audioPlayer() const noexcept
 {
     return m_audioPlayer;

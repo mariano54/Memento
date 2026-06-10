@@ -27,49 +27,54 @@ Window {
                     pageIndex: 0
                 }
                 ListElement {
+                    text: qsTr("ISSEN Integration")
+                    icon: "note-stack"
+                    pageIndex: 1
+                }
+                ListElement {
                     text: qsTr("Application")
                     icon: "settings"
-                    pageIndex: 1
+                    pageIndex: 2
                 }
                 ListElement{
                     text: qsTr("Audio Sources")
                     icon: "volume-on"
-                    pageIndex: 2
+                    pageIndex: 3
                 }
                 ListElement{
                     text: qsTr("Behavior")
                     icon: "gear"
-                    pageIndex: 3
+                    pageIndex: 4
                 }
                 ListElement {
                     text: qsTr("Dictionary")
                     icon: "dictionary"
-                    pageIndex: 4
+                    pageIndex: 5
                 }
                 ListElement {
                     text: qsTr("Interface")
                     icon: "window"
-                    pageIndex: 5
+                    pageIndex: 6
                 }
                 ListElement {
                     text: qsTr("Keybinds")
                     icon: "keyboard"
-                    pageIndex: 6
+                    pageIndex: 7
                 }
                 ListElement {
                     text: qsTr("Search")
                     icon: "search"
-                    pageIndex: 8
+                    pageIndex: 9
                 }
             }
 
             Component.onCompleted: {
                 if (Features.ocr)
                 {
-                    model.insert(7, {
+                    model.insert(8, {
                         text: qsTr("OCR"),
                         icon: "eye",
-                        pageIndex: 7,
+                        pageIndex: 8,
                     });
                 }
             }
@@ -95,6 +100,8 @@ Window {
             }
 
             AnkiIntegrationPage { }
+
+            IssenIntegrationPage { }
 
             ApplicationPage { }
 

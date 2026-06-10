@@ -67,6 +67,12 @@ QString DirectoryUtils::getAnkiConfig()
     return getConfigDir() + ANKI_CONFIG_FILE;
 }
 
+QString DirectoryUtils::getIssenConfig()
+{
+    constexpr const char *ISSEN_CONFIG_FILE = "issen.json";
+    return getConfigDir() + ISSEN_CONFIG_FILE;
+}
+
 QString DirectoryUtils::getMpvInputConfig()
 {
     constexpr const char *MPV_INPUT_CONF_FILE = "input.conf";

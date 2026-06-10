@@ -25,6 +25,8 @@
 #include "anki/ankiclient.h"
 #include "anki/ankiconfig.h"
 #include "audio/audioplayer.h"
+#include "issen/issenclient.h"
+#include "issen/issenconfig.h"
 #include "dict/dictionarycontroller.h"
 #include "player/mpvplayer.h"
 #include "quick/fileopenhandler.h"
@@ -66,6 +68,22 @@ public:
      */
     [[nodiscard]]
     AnkiClient *ankiClient() const noexcept;
+
+    /**
+     * @brief Get the global ISSEN configuration.
+     *
+     * @return The global ISSEN config.
+     */
+    [[nodiscard]]
+    IssenConfig *issenConfig() const noexcept;
+
+    /**
+     * @brief Get the global ISSEN client.
+     *
+     * @return The global ISSEN client.
+     */
+    [[nodiscard]]
+    IssenClient *issenClient() const noexcept;
 
     /**
      * @brief Get the global audio player.
@@ -125,6 +143,14 @@ private:
 
     /* The application Anki client */
     AnkiClient *m_ankiClient{new AnkiClient(this, this)};
+
+    /* The application ISSEN configuration */
+    IssenConfig *m_issenConfig{
+        new IssenConfig(DirectoryUtils::getIssenConfig(), this)
+    };
+
+    /* The application ISSEN client */
+    IssenClient *m_issenClient{new IssenClient(this, this)};
 
     /* The application audio player. Has ownership. */
     AudioPlayer *m_audioPlayer{new AudioPlayer(this)};

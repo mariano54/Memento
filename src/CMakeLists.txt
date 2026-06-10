@@ -1,6 +1,7 @@
 # Add subdirectories
 add_subdirectory(anki)
 add_subdirectory(audio)
+add_subdirectory(issen)
 add_subdirectory(constant)
 add_subdirectory(definition)
 add_subdirectory(dict)
@@ -93,6 +94,7 @@ qt_add_qml_module(
         qml/options/AnkiIntegrationHelpWindow.qml
         qml/options/AnkiIntegrationPage.qml
         qml/options/ApplicationPage.qml
+        qml/options/IssenIntegrationPage.qml
         qml/options/AudioSourcesPage.qml
         qml/options/BehaviorPage.qml
         qml/options/DictionaryPage.qml
@@ -144,6 +146,7 @@ target_link_libraries(
     PRIVATE definition
     PRIVATE dictionary
     PRIVATE features
+    PRIVATE issen
     PRIVATE keytracker
     PRIVATE managers
     PRIVATE mpvplayer

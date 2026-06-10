@@ -56,10 +56,41 @@ Item {
     }
 
     /**
+     * Add the term to ISSEN.
+     */
+    function addTermIssen()
+    {
+        if (!IssenConfig.enabled || !root.term || root.term.ankiAdding)
+        {
+            return;
+        }
+
+        root.term.ankiAdding = true;
+        IssenClient.addTerm(root.term).then(function(result) {
+            if (root.term)
+            {
+                root.term.ankiAdding = false;
+            }
+            if (!result.success)
+            {
+                errorDialog.title = qsTr("Error Adding Word to ISSEN");
+                errorLabel.text = result.error;
+                errorDialog.open();
+            }
+        });
+    }
+
+    /**
      * Add the term to Anki.
      */
     function addTerm()
     {
+        if (IssenConfig.enabled)
+        {
+            root.addTermIssen();
+            return;
+        }
+
         if (!AnkiConfig.enabled ||
                 !root.term ||
                 !root.term.ankiChecked ||
@@ -278,17 +309,24 @@ Item {
                     ToolButton {
                         id: addAnkiButton
                         focusPolicy: Qt.NoFocus
-                        visible: AnkiConfig.enabled &&
-                                 root.term &&
-                                 root.term.ankiChecked &&
-                                 (root.term.addableExpression || root.term.addableReading)
-                        enabled: audioFiles.loadState === AudioFiles.LoadState.Loaded &&
-                                 root.term &&
-                                 !root.term.ankiAdding
+                        visible: (IssenConfig.enabled && root.term !== null) ||
+                                 (AnkiConfig.enabled &&
+                                  root.term &&
+                                  root.term.ankiChecked &&
+                                  (root.term.addableExpression || root.term.addableReading))
+                        enabled: root.term &&
+                                 !root.term.ankiAdding &&
+                                 (IssenConfig.enabled ||
+                                  audioFiles.loadState === AudioFiles.LoadState.Loaded)
                         icon.name: MementoSettings.interfaceSystemIcons ? "list-add" : null
                         icon.source: Utils.toImageProvider("add", MementoPalette.text)
 
                         onClicked: {
+                            if (IssenConfig.enabled)
+                            {
+                                root.addTermIssen();
+                                return;
+                            }
                             const audioSource = audioFiles.files.get(0);
                             if (audioSource.exists)
                             {

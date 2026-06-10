@@ -47,6 +47,8 @@
 #include "audio/audioplayer.h"
 #include "definition/structuredrichtext.h"
 #include "dict/dictionary.h"
+#include "issen/issenclient.h"
+#include "issen/issenconfig.h"
 #include "dict/dictionarycontroller.h"
 #include "dict/dictionaryinfomodel.h"
 #include "dict/dictionarysearch.h"
@@ -131,6 +133,15 @@ static void registerQmlTypes(Context &context)
     );
     qmlRegisterSingletonInstance<AnkiClient>(
         MEMENTO_URI, 1, 0, "AnkiClient", context.ankiClient()
+    );
+
+    /* ISSEN Types */
+
+    qmlRegisterSingletonInstance<IssenConfig>(
+        MEMENTO_URI, 1, 0, "IssenConfig", context.issenConfig()
+    );
+    qmlRegisterSingletonInstance<IssenClient>(
+        MEMENTO_URI, 1, 0, "IssenClient", context.issenClient()
     );
 
     /* Audio Types */
